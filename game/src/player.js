@@ -136,6 +136,9 @@ function updateDriving(p, input, dt, city, traffic, audio, game) {
     p.x = car.x + Math.cos(car.angle + Math.PI / 2) * 40;
     p.y = car.y + Math.sin(car.angle + Math.PI / 2) * 40;
     p.x = clamp(p.x, 30, WORLD - 30); p.y = clamp(p.y, 30, WORLD - 30);
+    // The exit spot can land inside a building when the car is parked
+    // tight against one; push Rico out so he never spawns stuck in a wall.
+    for (const b of city.buildings) pushCircleOutOfRect(p, 16, b.x, b.y, b.w, b.h);
     audio.blip(440, 0.1, 'sine', 0.12);
   }
   if (input.wasPressed(' ') && Math.abs(car.speed) > 60) {

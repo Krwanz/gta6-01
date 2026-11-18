@@ -122,7 +122,10 @@ export function updateMissions(m, dt, game) {
     return;
   }
   if (def.kind === 'fight') {
-    // Thugs chase Rico on foot and swing when close.
+    // Thugs chase Rico on foot and swing when close. They cannot hit him
+    // through a car: a thug swinging at a moving car would damage Rico
+    // while he is safely inside it, so the attack only lands on foot.
+    const onFoot = !p.inCar;
     for (const th of m.thugs) {
       if (th.health <= 0) continue;
       th.attackTimer -= dt;
@@ -131,7 +134,7 @@ export function updateMissions(m, dt, game) {
         const a = Math.atan2(p.y - th.y, p.x - th.x);
         th.angle = a;
         if (d > 30) { th.x += Math.cos(a) * th.speed * dt; th.y += Math.sin(a) * th.speed * dt; }
-        if (d < 34 && th.attackTimer <= 0) {
+        if (onFoot && d < 34 && th.attackTimer <= 0) {
           th.attackTimer = 0.9;
           p.health -= 5; p.hurtFlash = 0.4;
           game.audio.punch(); game.addShake(3);

@@ -18,6 +18,10 @@ export function addWanted(police, amount, audio) {
 }
 
 export function updatePolice(police, dt, player, city, traffic, audio, game) {
+  // An arrest only happens on foot: once Rico is back in a car the grab
+  // timer must not carry over, or an officer could bust him the instant
+  // he steps out again with a timer already half full.
+  if (player.inCar) police.arrestTimer = 0;
   // Laying low at the hideout shakes the trail faster: the hideout is
   // where Rico loses the cops, so heat and the quiet timer run down
   // quicker within its radius than out on the street.

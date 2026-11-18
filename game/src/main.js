@@ -76,10 +76,10 @@ game.onCarStolen = (car) => {
   }
   game.saveGame();
 };
+const CRASH_COOLDOWN_SECONDS = 0.8;
 game.onCrash = (speed) => {
-  game.crashCooldown = (game.crashCooldown || 0);
   if (speed > 260 && game.crashCooldown <= 0) {
-    game.crashCooldown = 0.8;
+    game.crashCooldown = CRASH_COOLDOWN_SECONDS;
     game.player.health -= 4; game.player.hurtFlash = 0.3;
     if (game.player.health <= 0) game.onPlayerDown();
   }
