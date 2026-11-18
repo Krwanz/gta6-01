@@ -18,12 +18,17 @@ export function addWanted(police, amount, audio) {
 }
 
 export function updatePolice(police, dt, player, city, traffic, audio, game) {
+  // Laying low at the hideout shakes the trail faster: the hideout is
+  // where Rico loses the cops, so heat and the quiet timer run down
+  // quicker within its radius than out on the street.
+  const hide = city.places.hideout;
+  const hiding = hide && dist(player.x, player.y, hide.x, hide.y) < 220;
   // Heat decays when Rico stays quiet; stars fall one at a time.
   if (police.heat <= 0 && police.wanted > 0) {
-    police.quietTimer += dt;
+    police.quietTimer += dt * (hiding ? 2 : 1);
     if (police.quietTimer > 9) { police.wanted -= 1; police.quietTimer = 0; game.addToast('The heat is cooling off…'); }
   } else if (police.heat > 0) {
-    police.heat = Math.max(0, police.heat - dt * 0.08);
+    police.heat = Math.max(0, police.heat - dt * (hiding ? 0.35 : 0.08));
   }
   const wantUnits = police.wanted === 0 ? 0 : police.wanted + 1;
   // Spawn units near (but not on top of) the player.
@@ -40,13 +45,19 @@ export function updatePolice(police, dt, player, city, traffic, audio, game) {
       // Chase the car: steer toward Rico, ram when close.
       const want = angleTo(u.x, u.y, player.x, player.y);
       u.angle += clamp(angleDiff(u.angle, want), -2.6 * dt, 2.6 * dt);
-      u.speed = clamp(u.speed + 380 * dt, 0, 540);
+      u.speed = clamp(u.speed + 380 * dt, 0, 450);
       u.x += Math.cos(u.angle) * u.speed * dt;
       u.y += Math.sin(u.angle) * u.speed * dt;
       if (d < 58 && Math.abs(player.inCar.speed) < 420) {
-        player.inCar.speed *= 0.82; u.speed *= 0.7;
+        // A ram lands at most once per timer per unit: cutting the
+        // player's speed every frame while the cars overlap pins it at
+        // ~0 forever, so it can never drive away from the police.
         u.ramTimer = (u.ramTimer || 0) - dt;
-        if (u.ramTimer <= 0) { u.ramTimer = 1.2; game.addShake(3); game.onRam(); }
+        if (u.ramTimer <= 0) {
+          u.ramTimer = 2.2;
+          player.inCar.speed *= 0.82; u.speed *= 0.7;
+          game.addShake(3); game.onRam();
+        }
       }
       if (d > 1600) { const s = respawnNear(police, player); u.x = s.x; u.y = s.y; }
     } else {

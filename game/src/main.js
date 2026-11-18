@@ -85,7 +85,7 @@ game.onCrash = (speed) => {
   }
 };
 game.onRam = () => {
-  game.player.health -= 5; game.player.hurtFlash = 0.25;
+  game.player.health -= 2; game.player.hurtFlash = 0.25;
   if (game.player.health <= 0) game.onPlayerDown();
 };
 game.onPedHit = (ped) => {

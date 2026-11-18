@@ -54,7 +54,7 @@ export function buildCity() {
       const pal = pick(rng, PALETTES);
       for (let gx = 0; gx < 2; gx++) {
         for (let gy = 0; gy < 2; gy++) {
-          const w = 120 + rng() * 40, h = 120 + rng() * 40;
+          const w = 120 + rng() * 20, h = 120 + rng() * 20;
           const x = bx + 8 + gx * (block / 2) + (block / 2 - w) / 2 - 4;
           const y = by + 8 + gy * (block / 2) + (block / 2 - h) / 2 - 4;
           buildings.push({

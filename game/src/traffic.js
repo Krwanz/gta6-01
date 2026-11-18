@@ -87,8 +87,11 @@ export function updateTraffic(t, dt, city, player, police) {
       const dir = Math.random() < 0.5 ? 1 : -1;
       car.horizontal = horizontal;
       car.angle = horizontal ? (dir > 0 ? 0 : Math.PI) : (dir > 0 ? Math.PI / 2 : -Math.PI / 2);
-      car.x = horizontal ? car.x : nearestStreetCoord(car.x);
-      car.y = horizontal ? nearestStreetCoord(car.y) : car.y;
+      // Keep the car's lane offset through the turn: a car that snaps to the
+      // street centreline ends up head-on in oncoming traffic.
+      const lane = (ROAD_W / 2 - 22) * (dir > 0 ? 1 : -1);
+      car.x = horizontal ? car.x : nearestStreetCoord(car.x) + lane;
+      car.y = horizontal ? nearestStreetCoord(car.y) + lane : car.y;
     } else {
       car.x = nx; car.y = ny;
     }

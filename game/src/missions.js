@@ -133,7 +133,7 @@ export function updateMissions(m, dt, game) {
         if (d > 30) { th.x += Math.cos(a) * th.speed * dt; th.y += Math.sin(a) * th.speed * dt; }
         if (d < 34 && th.attackTimer <= 0) {
           th.attackTimer = 0.9;
-          p.health -= 8; p.hurtFlash = 0.4;
+          p.health -= 5; p.hurtFlash = 0.4;
           game.audio.punch(); game.addShake(3);
           if (p.health <= 0) game.onPlayerDown();
         }

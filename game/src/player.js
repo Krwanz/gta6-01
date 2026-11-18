@@ -73,7 +73,7 @@ function nearestStealable(cars, x, y) {
 function punch(p, game, audio) {
   p.punchTimer = 0.35;
   audio.punch();
-  game.punchAt(p.x + Math.cos(p.angle) * 34, p.y + Math.sin(p.angle) * 34, 46, 18, 'player');
+  game.punchAt(p.x + Math.cos(p.angle) * 34, p.y + Math.sin(p.angle) * 34, 46, 25, 'player');
 }
 
 function shoot(p, input, game, audio) {
@@ -111,8 +111,15 @@ function updateDriving(p, input, dt, city, traffic, audio, game) {
   for (const o of traffic.cars) {
     if (o === car || o.playerDriven) continue;
     if (dist(car.x, car.y, o.x, o.y) < 52 && Math.abs(car.speed) > 60) {
-      o.x += Math.cos(car.angle) * 26; o.y += Math.sin(car.angle) * 26;
-      o.speed = 0; audio.crash(); game.addShake(4); game.onCrash(Math.abs(car.speed));
+      // Shove the car sideways out of the player's lane instead of dead
+      // ahead: a bumped car that stops in front of the player becomes a
+      // wall the player keeps rear-ending. A bump jolts; it doesn't wound
+      // like a building crash does.
+      const cross = Math.cos(car.angle) * (o.y - car.y) - Math.sin(car.angle) * (o.x - car.x);
+      const side = cross >= 0 ? 1 : -1;
+      o.x += Math.cos(car.angle + side * Math.PI / 2) * 26;
+      o.y += Math.sin(car.angle + side * Math.PI / 2) * 26;
+      audio.crash(); game.addShake(4);
     }
   }
   for (const ped of traffic.peds) {
